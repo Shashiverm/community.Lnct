@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
   const [name, setName] = useState("")
+  const [enrollmentNumber, setEnrollmentNumber] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -40,6 +41,7 @@ export default function RegisterPage() {
     try {
       await register({
         name,
+        enrollmentNumber,
         email,
         password,
         role,
@@ -92,6 +94,17 @@ export default function RegisterPage() {
                   autoCorrect="off"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="enrollmentNumber">Enrollment Number</Label>
+                <Input
+                  id="enrollmentNumber"
+                  placeholder="LNCE1234567890"
+                  type="text"
+                  value={enrollmentNumber}
+                  onChange={(e) => setEnrollmentNumber(e.target.value)}
                   required
                 />
               </div>
