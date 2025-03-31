@@ -191,7 +191,7 @@ export default function EventsPage() {
         </Select>
       </div>
 
-      <Tabs defaultValue="upcoming" onValueChange={(value: string) => setViewMode(value as "upcoming" | "past")}>
+      <Tabs defaultValue="upcoming" onValueChange={(value) => setViewMode(value as "upcoming" | "past")}>
         <TabsList className="mb-8">
           <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
           <TabsTrigger value="past">Past Events</TabsTrigger>

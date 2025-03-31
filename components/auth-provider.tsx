@@ -10,6 +10,7 @@ type User = {
   name: string
   email: string
   role: "student" | "alumni" | "faculty" | "admin"
+  enrollmentNumber: string
   profileImage?: string
 }
 
@@ -26,6 +27,7 @@ type RegisterData = {
   email: string
   password: string
   role: "student" | "alumni" | "faculty"
+  enrollmentNumber: string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -54,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: "John Doe",
         email,
         role: "student",
+        enrollmentNumber: "LNCE1234567890",
         profileImage: "/placeholder.svg?height=40&width=40",
       }
 
@@ -79,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: userData.name,
         email: userData.email,
         role: userData.role,
+        enrollmentNumber: userData.enrollmentNumber,
         profileImage: "/placeholder.svg?height=40&width=40",
       }
 

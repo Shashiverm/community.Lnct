@@ -7,11 +7,23 @@ const sendEmail = async (options) => {
     port: process.env.SMTP_PORT,
     auth: {
       user: process.env.SMTP_EMAIL,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
+      pass: process.env.SMTP_PASSWORD,
+    },
+  })
 
   // Define email options
   const mailOptions = {
-    from: `${process.env.FROM_NAME} <${process.env.FROM
+    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    to: options.email,
+    subject: options.subject,
+    html: options.message,
+  }
+
+  // Send email
+  const info = await transporter.sendMail(mailOptions)
+
+  console.log("Email sent: ", info.messageId)
+}
+
+export default sendEmail
 
