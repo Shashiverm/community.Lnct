@@ -17,6 +17,7 @@ import {
 import { useRouter, usePathname } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Header() {
   const { user, logout } = useAuth()
@@ -92,6 +93,9 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
+          {/* Theme toggle for all users */}
+          <ThemeToggle />
+          
           {user ? (
             <>
               {/* Notification and Message icons for desktop */}

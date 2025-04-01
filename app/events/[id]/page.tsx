@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface User {
   id: string
@@ -228,10 +229,13 @@ export default function EventDetailPage() {
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <Badge variant="secondary">{event.category}</Badge>
-                <Button variant="ghost" size="sm" onClick={handleShare}>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <Button variant="ghost" size="sm" onClick={handleShare}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                </div>
               </div>
               <CardTitle className="text-2xl md:text-3xl">{event.title}</CardTitle>
               <CardDescription className="text-base">{event.description}</CardDescription>
