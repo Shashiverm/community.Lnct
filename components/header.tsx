@@ -80,6 +80,14 @@ export default function Header() {
           >
             Resources
           </Link>
+          <Link
+            href="/alumni"
+            className={`text-sm font-medium transition-colors hover:text-primary ${
+              isActive("/alumni") ? "text-primary" : "text-foreground/80"
+            }`}
+          >
+            Alumni Directory
+          </Link>
           {user && (
             <Link
               href="/network"
@@ -242,6 +250,14 @@ export default function Header() {
                     }`}
                   >
                     Resources
+                  </Link>
+                  <Link
+                    href="/alumni"
+                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
+                      isActive("/alumni") ? "bg-muted" : ""
+                    }`}
+                  >
+                    Alumni Directory
                   </Link>
                   {user && (
                     <Link

@@ -48,13 +48,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/network" className="text-muted-foreground hover:text-foreground">
-                  Network
+                <Link href="/alumni" className="text-muted-foreground hover:text-foreground">
+                  Alumni Directory
                 </Link>
               </li>
               <li>
-                <Link href="/alumni" className="text-muted-foreground hover:text-foreground">
-                  Alumni Directory
+              <Link href="/network" className="text-muted-foreground hover:text-foreground">
+                  Network
                 </Link>
               </li>
               <li>
