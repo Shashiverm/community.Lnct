@@ -12,12 +12,39 @@ import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
 
+interface Resource {
+  id: string
+  title: string
+  description: string
+  category: string
+  type: string
+  url: string
+  downloads: number
+  likes: number
+  author: {
+    id: string
+    name: string
+    role: string
+    department: string
+    profileImage: string
+  }
+  date: string
+  tags: string[]
+  relatedResources: Array<{
+    id: string
+    title: string
+    type: string
+    category: string
+  }>
+  liked: boolean
+}
+
 export default function ResourceDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const { toast } = useToast()
   const { user } = useAuth()
-  const [resource, setResource] = useState<any>(null)
+  const [resource, setResource] = useState<Resource | null>(null)
   const [loading, setLoading] = useState(true)
   const [liked, setLiked] = useState(false)
 
@@ -29,25 +56,28 @@ export default function ResourceDetailPage() {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         // Mock resource data
-        const mockResource = {
-          id,
-          title: "Complete Data Structures & Algorithms Guide",
-          description:
-            "A comprehensive guide to data structures and algorithms for computer science students. This resource covers all the fundamental concepts, implementation details, and problem-solving techniques required for mastering DSA. Perfect for interview preparation and competitive programming.",
-          category: "Academic",
-          type: "PDF",
-          url: "https://example.com/resources/dsa-guide.pdf",
-          downloads: 1250,
-          likes: 320,
+        const mockResource: Resource = {
+          id: typeof id === 'string' ? id : '1',
+          title: id === 'ai-learning' ? "DeepLearning.AI - Learn AI & Machine Learning" : "Complete Data Structures & Algorithms Guide",
+          description: id === 'ai-learning' 
+            ? "DeepLearning.AI offers comprehensive courses in AI and machine learning. Learn from industry experts and get hands-on experience with real-world projects. Perfect for students and professionals looking to build a career in AI."
+            : "A comprehensive guide to data structures and algorithms for computer science students. This resource covers all the fundamental concepts, implementation details, and problem-solving techniques required for mastering DSA. Perfect for interview preparation and competitive programming.",
+          category: id === 'ai-learning' ? "Career" : "Academic",
+          type: "Website",
+          url: id === 'ai-learning' ? "https://learn.deeplearning.ai/" : "https://example.com/resources/dsa-guide.pdf",
+          downloads: id === 'ai-learning' ? 0 : 1250,
+          likes: id === 'ai-learning' ? 0 : 320,
           author: {
-            id: "1",
-            name: "Prof. Sharma",
-            role: "Faculty",
+            id: id === 'ai-learning' ? "2" : "1",
+            name: id === 'ai-learning' ? "Shashi Verma" : "Prof. Sharma",
+            role: id === 'ai-learning' ? "Alumni" : "Faculty",
             department: "Computer Science",
             profileImage: "/placeholder.svg?height=40&width=40",
           },
-          date: "2023-05-15",
-          tags: ["Data Structures", "Algorithms", "Programming", "Interview Preparation"],
+          date: id === 'ai-learning' ? new Date().toISOString().split('T')[0] : "2023-05-15",
+          tags: id === 'ai-learning' 
+            ? ["Artificial Intelligence", "Machine Learning", "Deep Learning", "Career Development"]
+            : ["Data Structures", "Algorithms", "Programming", "Interview Preparation"],
           relatedResources: [
             { id: "2", title: "Advanced Algorithm Design", type: "PDF", category: "Academic" },
             { id: "3", title: "Competitive Programming Handbook", type: "Document", category: "Academic" },
@@ -76,10 +106,10 @@ export default function ResourceDetailPage() {
   const handleLike = () => {
     // In a real app, this would make an API call
     setLiked(!liked)
-    setResource((prev) => ({
+    setResource((prev) => prev ? {
       ...prev,
       likes: liked ? prev.likes - 1 : prev.likes + 1,
-    }))
+    } : null)
 
     toast({
       title: liked ? "Unliked" : "Liked",
@@ -88,12 +118,14 @@ export default function ResourceDetailPage() {
   }
 
   const handleDownload = () => {
+    if (!resource) return;
+    
     // In a real app, this would make an API call to track downloads
     // and then redirect to the actual file
-    setResource((prev) => ({
+    setResource((prev) => prev ? {
       ...prev,
       downloads: prev.downloads + 1,
-    }))
+    } : null)
 
     toast({
       title: "Download started",

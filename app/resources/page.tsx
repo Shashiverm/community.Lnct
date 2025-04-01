@@ -32,6 +32,17 @@ export default function ResourcesPage() {
 
   const resources: Resource[] = [
     {
+      id: "ai-learning",
+      title: "DeepLearning.AI - Learn AI & Machine Learning",
+      description: "DeepLearning.AI offers comprehensive courses in AI and machine learning. Learn from industry experts and get hands-on experience with real-world projects.",
+      category: "Career",
+      type: "Website",
+      downloads: 0,
+      likes: 0,
+      author: "Shashi Verma",
+      date: new Date().toISOString().split('T')[0],
+    },
+    {
       id: "1",
       title: "Complete Data Structures & Algorithms Guide",
       description: "A comprehensive guide to data structures and algorithms for computer science students.",
