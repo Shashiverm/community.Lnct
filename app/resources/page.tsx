@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { BookOpen, Download, FileText, Search, ThumbsUp, Upload } from "lucide-react"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// Import useAuth at the top of the file
+import { useAuth } from "@/components/auth-provider"
 
 type Resource = {
   id: string
@@ -24,6 +26,9 @@ type Resource = {
 export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
+
+  // Add useAuth hook inside the component
+  const { user } = useAuth()
 
   const resources: Resource[] = [
     {
@@ -131,6 +136,7 @@ export default function ResourcesPage() {
 
   return (
     <div className="container py-8">
+      {/* Update the header section to conditionally render the Upload Resource button */}
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Resources</h1>
@@ -138,15 +144,17 @@ export default function ResourcesPage() {
             Access educational materials, career resources, and technical guides shared by the community.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/resources/upload">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Resource
-          </Link>
-        </Button>
+        {user && (
+          <Button asChild>
+            <Link href="/resources/upload">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Resource
+            </Link>
+          </Button>
+        )}
       </div>
 
-      <div className="mb-8 flex flex-col gap-4 md:flex-row">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row">
         <div className="flex-1">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -160,7 +168,7 @@ export default function ResourcesPage() {
           </div>
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full md:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -174,7 +182,7 @@ export default function ResourcesPage() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredResources.map((resource) => (
           <Card key={resource.id} className="flex flex-col overflow-hidden">
             <CardHeader className="pb-2">

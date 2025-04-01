@@ -5,12 +5,15 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
+// Update the User type to include new fields
 type User = {
   id: string
   name: string
   email: string
+  username?: string
+  enrollmentNumber?: string
+  teacherId?: string
   role: "student" | "alumni" | "faculty" | "admin"
-  enrollmentNumber: string
   profileImage?: string
 }
 
@@ -22,12 +25,15 @@ type AuthContextType = {
   logout: () => void
 }
 
+// Update the RegisterData type to include new fields
 type RegisterData = {
   name: string
   email: string
+  username?: string
+  enrollmentNumber?: string
+  teacherId?: string
   password: string
   role: "student" | "alumni" | "faculty"
-  enrollmentNumber: string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -56,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: "John Doe",
         email,
         role: "student",
-        enrollmentNumber: "LNCE1234567890",
         profileImage: "/placeholder.svg?height=40&width=40",
       }
 
@@ -72,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Update the register function to handle new fields
   const register = async (userData: RegisterData) => {
     setLoading(true)
     try {
@@ -81,8 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: "1",
         name: userData.name,
         email: userData.email,
-        role: userData.role,
+        username: userData.username,
         enrollmentNumber: userData.enrollmentNumber,
+        teacherId: userData.teacherId,
+        role: userData.role,
         profileImage: "/placeholder.svg?height=40&width=40",
       }
 
@@ -102,6 +110,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("lnct_user")
     setUser(null)
     router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>

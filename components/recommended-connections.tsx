@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 type Connection = {
   id: string
@@ -70,8 +71,11 @@ export function RecommendedConnections() {
             </Avatar>
             <div>
               <div className="font-medium">{connection.name}</div>
-              <div className="text-xs text-muted-foreground">
-                {connection.role} • {connection.department}
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Badge variant="outline" className="text-xs capitalize px-1.5 py-0">
+                  {connection.role}
+                </Badge>
+                • {connection.department}
               </div>
               <div className="text-xs text-muted-foreground">{connection.mutualConnections} mutual connections</div>
             </div>

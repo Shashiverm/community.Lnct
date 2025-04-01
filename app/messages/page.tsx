@@ -262,7 +262,7 @@ export default function MessagesPage() {
     <div className="container py-4 md:py-8">
       <h1 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold tracking-tight">Messages</h1>
 
-      <div className="grid h-[calc(100vh-12rem)] grid-cols-1 overflow-hidden rounded-lg border md:grid-cols-[300px_1fr]">
+      <div className="grid h-[calc(100vh-12rem)] grid-cols-1 overflow-hidden rounded-lg border md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr]">
         {/* Conversations List - Only show on desktop or when no conversation is selected on mobile */}
         {(!isMobile || !selectedConversation) && (
           <div className="flex flex-col border-r">
@@ -389,6 +389,7 @@ export default function MessagesPage() {
                       placeholder="Type a message..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
+                      className="flex-1"
                     />
                     <Button type="submit" size="icon" disabled={!newMessage.trim()}>
                       <Send className="h-4 w-4" />

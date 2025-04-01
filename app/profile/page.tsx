@@ -87,7 +87,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container py-8">
-      <div className="grid gap-8 md:grid-cols-3">
+      <div className="grid gap-6 md:gap-8 md:grid-cols-3">
         {/* Profile Sidebar */}
         <div className="md:col-span-1">
           <Card>
@@ -152,7 +152,7 @@ export default function ProfilePage() {
         {/* Profile Content */}
         <div className="md:col-span-2">
           <Tabs defaultValue="about">
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 w-full overflow-auto">
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="education">Education</TabsTrigger>
               <TabsTrigger value="experience">Experience</TabsTrigger>

@@ -10,6 +10,7 @@ import { Download, FileText, ThumbsUp, ArrowLeft, Share2, Calendar, ExternalLink
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
+import Link from "next/link"
 
 export default function ResourceDetailPage() {
   const { id } = useParams()
@@ -214,14 +215,25 @@ export default function ResourceDetailPage() {
                   <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </Button>
-                <Button variant={liked ? "default" : "outline"} onClick={handleLike}>
-                  <ThumbsUp className="mr-2 h-4 w-4" />
-                  {liked ? "Liked" : "Like"}
-                </Button>
-                <Button onClick={handleDownload}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
+                {user ? (
+                  <>
+                    <Button variant={liked ? "default" : "outline"} onClick={handleLike}>
+                      <ThumbsUp className="mr-2 h-4 w-4" />
+                      {liked ? "Liked" : "Like"}
+                    </Button>
+                    <Button onClick={handleDownload}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                  </>
+                ) : (
+                  <Button asChild>
+                    <Link href="/login">
+                      <Download className="mr-2 h-4 w-4" />
+                      Log in to Download
+                    </Link>
+                  </Button>
+                )}
               </div>
             </CardFooter>
           </Card>

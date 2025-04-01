@@ -11,13 +11,44 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
+import Link from "next/link"
+
+interface User {
+  id: string
+  name: string
+  role: string
+  profileImage: string
+}
+
+interface Attendee {
+  user: User
+  status: "attending" | "maybe" | "not attending"
+}
+
+interface Event {
+  id: string
+  title: string
+  description: string
+  date: string
+  endDate: string
+  location: string
+  category: string
+  attendees: Attendee[]
+  organizer: User
+  agenda: Array<{
+    time: string
+    title: string
+    description: string
+  }>
+  isAttending: boolean
+}
 
 export default function EventDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const { toast } = useToast()
   const { user } = useAuth()
-  const [event, setEvent] = useState<any>(null)
+  const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [attendanceStatus, setAttendanceStatus] = useState<"attending" | "maybe" | "not attending" | null>(null)
 
@@ -29,8 +60,8 @@ export default function EventDetailPage() {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         // Mock event data
-        const mockEvent = {
-          id,
+        const mockEvent: Event = {
+          id: String(id),
           title: "Annual Tech Symposium",
           description:
             "Join us for a day of tech talks, workshops, and networking with industry professionals. The symposium will feature keynote speeches from leading experts in AI, blockchain, and cloud computing. There will also be hands-on workshops on the latest technologies and tools used in the industry. This is a great opportunity for students to learn about current trends and network with professionals.",
@@ -259,26 +290,34 @@ export default function EventDetailPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row gap-2">
-              <Button
-                className={`w-full ${attendanceStatus === "attending" ? "bg-green-600 hover:bg-green-700" : ""}`}
-                onClick={() => handleAttendance("attending")}
-              >
-                {attendanceStatus === "attending" ? "Attending" : "Attend"}
-              </Button>
-              <Button
-                variant={attendanceStatus === "maybe" ? "default" : "outline"}
-                className={`w-full ${attendanceStatus === "maybe" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                onClick={() => handleAttendance("maybe")}
-              >
-                Maybe
-              </Button>
-              <Button
-                variant={attendanceStatus === "not attending" ? "default" : "outline"}
-                className={`w-full ${attendanceStatus === "not attending" ? "bg-red-600 hover:bg-red-700" : ""}`}
-                onClick={() => handleAttendance("not attending")}
-              >
-                Decline
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    className={`w-full ${attendanceStatus === "attending" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                    onClick={() => handleAttendance("attending")}
+                  >
+                    {attendanceStatus === "attending" ? "Attending" : "Attend"}
+                  </Button>
+                  <Button
+                    variant={attendanceStatus === "maybe" ? "default" : "outline"}
+                    className={`w-full ${attendanceStatus === "maybe" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                    onClick={() => handleAttendance("maybe")}
+                  >
+                    Maybe
+                  </Button>
+                  <Button
+                    variant={attendanceStatus === "not attending" ? "default" : "outline"}
+                    className={`w-full ${attendanceStatus === "not attending" ? "bg-red-600 hover:bg-red-700" : ""}`}
+                    onClick={() => handleAttendance("not attending")}
+                  >
+                    Decline
+                  </Button>
+                </>
+              ) : (
+                <Button className="w-full" asChild>
+                  <Link href="/login">Log in to Attend</Link>
+                </Button>
+              )}
             </CardFooter>
           </Card>
 

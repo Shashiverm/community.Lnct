@@ -13,6 +13,7 @@ type Notification = {
   from: {
     name: string
     avatar?: string
+    role?: string
   }
   timestamp: string
   read: boolean
@@ -27,6 +28,7 @@ export function NotificationsList() {
       from: {
         name: "Rahul Verma",
         avatar: "/placeholder.svg?height=40&width=40",
+        role: "student",
       },
       timestamp: "10 minutes ago",
       read: false,
@@ -38,6 +40,7 @@ export function NotificationsList() {
       from: {
         name: "Neha Gupta",
         avatar: "/placeholder.svg?height=40&width=40",
+        role: "student",
       },
       timestamp: "1 hour ago",
       read: false,
@@ -49,6 +52,7 @@ export function NotificationsList() {
       from: {
         name: "Prof. Sharma",
         avatar: "/placeholder.svg?height=40&width=40",
+        role: "professor",
       },
       timestamp: "3 hours ago",
       read: true,
@@ -60,6 +64,7 @@ export function NotificationsList() {
       from: {
         name: "LNCT Events",
         avatar: "/placeholder.svg?height=40&width=40",
+        role: "organizer",
       },
       timestamp: "Yesterday",
       read: true,
@@ -71,6 +76,7 @@ export function NotificationsList() {
       from: {
         name: "Dr. Patel",
         avatar: "/placeholder.svg?height=40&width=40",
+        role: "professor",
       },
       timestamp: "2 days ago",
       read: true,
@@ -149,9 +155,13 @@ export function NotificationsList() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-muted p-1">{getNotificationIcon(notification.type)}</div>
-                  <p className="text-sm font-medium">
-                    <span className="font-semibold">{notification.from.name}</span> {notification.content}
-                  </p>
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-semibold">{notification.from.name}</span>
+                      <span className="text-xs text-muted-foreground ml-1 capitalize">({notification.from.role})</span>{" "}
+                      {notification.content}
+                    </p>
+                  </div>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">{notification.timestamp}</p>
               </div>

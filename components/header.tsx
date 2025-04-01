@@ -61,7 +61,7 @@ export default function Header() {
               isActive("/dashboard") ? "text-primary" : "text-foreground/80"
             }`}
           >
-            Dashboard
+            {user ? "Dashboard" : "Home"}
           </Link>
           <Link
             href="/events"
@@ -79,14 +79,16 @@ export default function Header() {
           >
             Resources
           </Link>
-          <Link
-            href="/network"
-            className={`text-sm font-medium transition-colors hover:text-primary ${
-              isActive("/network") ? "text-primary" : "text-foreground/80"
-            }`}
-          >
-            Network
-          </Link>
+          {user && (
+            <Link
+              href="/network"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/network") ? "text-primary" : "text-foreground/80"
+              }`}
+            >
+              Network
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -214,12 +216,12 @@ export default function Header() {
 
                 <nav className="flex flex-col gap-2">
                   <Link
-                    href="/dashboard"
+                    href={user ? "/dashboard" : "/"}
                     className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
-                      isActive("/dashboard") ? "bg-muted" : ""
+                      isActive(user ? "/dashboard" : "/") ? "bg-muted" : ""
                     }`}
                   >
-                    Dashboard
+                    {user ? "Dashboard" : "Home"}
                   </Link>
                   <Link
                     href="/events"
@@ -237,32 +239,38 @@ export default function Header() {
                   >
                     Resources
                   </Link>
-                  <Link
-                    href="/network"
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
-                      isActive("/network") ? "bg-muted" : ""
-                    }`}
-                  >
-                    Network
-                  </Link>
-                  <Link
-                    href="/messages"
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
-                      isActive("/messages") ? "bg-muted" : ""
-                    }`}
-                  >
-                    Messages
-                    {messageCount > 0 && <Badge variant="destructive">{messageCount}</Badge>}
-                  </Link>
-                  <Link
-                    href="/notifications"
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
-                      isActive("/notifications") ? "bg-muted" : ""
-                    }`}
-                  >
-                    Notifications
-                    {notificationCount > 0 && <Badge variant="destructive">{notificationCount}</Badge>}
-                  </Link>
+                  {user && (
+                    <Link
+                      href="/network"
+                      className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
+                        isActive("/network") ? "bg-muted" : ""
+                      }`}
+                    >
+                      Network
+                    </Link>
+                  )}
+                  {user && (
+                    <Link
+                      href="/messages"
+                      className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
+                        isActive("/messages") ? "bg-muted" : ""
+                      }`}
+                    >
+                      Messages
+                      {messageCount > 0 && <Badge variant="destructive">{messageCount}</Badge>}
+                    </Link>
+                  )}
+                  {user && (
+                    <Link
+                      href="/notifications"
+                      className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-muted ${
+                        isActive("/notifications") ? "bg-muted" : ""
+                      }`}
+                    >
+                      Notifications
+                      {notificationCount > 0 && <Badge variant="destructive">{notificationCount}</Badge>}
+                    </Link>
+                  )}
                   {user && (
                     <>
                       <Link
