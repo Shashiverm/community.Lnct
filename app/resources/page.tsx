@@ -30,6 +30,15 @@ export default function ResourcesPage() {
   // Add useAuth hook inside the component
   const { user } = useAuth()
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    })
+  }
+
   const resources: Resource[] = [
     {
       id: "1",
@@ -198,7 +207,11 @@ export default function ResourcesPage() {
             </CardHeader>
             <CardContent className="flex-1">
               <div className="text-sm text-muted-foreground">
-                Shared by {resource.author} on {new Date(resource.date).toLocaleDateString()}
+                <div className="flex items-center gap-2">
+                  <span>By {resource.author}</span>
+                  <span>•</span>
+                  <span>{formatDate(resource.date)}</span>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
