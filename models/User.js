@@ -1,107 +1,92 @@
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import crypto from "crypto"
 
 const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please provide a name"],
+      required: [true, "Please add a name"],
       trim: true,
       maxlength: [50, "Name cannot be more than 50 characters"],
     },
     email: {
       type: String,
-      required: [true, "Please provide an email"],
+      required: [true, "Please add an email"],
       unique: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please provide a valid email"],
-    },
-    password: {
-      type: String,
-      required: [true, "Please provide a password"],
-      minlength: [6, "Password must be at least 6 characters"],
-      select: false,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please add a valid email"],
+      lowercase: true,
+      index: true, // Add index for faster queries
     },
     role: {
       type: String,
-      enum: ["student", "alumni", "faculty", "admin"],
+      enum: ["student", "faculty", "alumni", "admin"],
       default: "student",
     },
-    department: {
+    password: {
       type: String,
-      trim: true,
+      required: [true, "Please add a password"],
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
     },
-    batch: {
-      type: String,
-      trim: true,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    emailVerificationToken: String,
+    emailVerificationExpire: Date,
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     profileImage: {
       type: String,
-      default: "/placeholder.svg?height=100&width=100",
+      default: "default-profile.jpg",
     },
     bio: {
       type: String,
       maxlength: [500, "Bio cannot be more than 500 characters"],
     },
-    location: String,
-    phone: String,
-    skills: [String],
+    department: String,
+    graduationYear: Number,
+    enrollmentNumber: {
+      type: String,
+      sparse: true, // Allow null/undefined values
+      index: true, // Add index for faster queries
+    },
     connections: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.ObjectId,
         ref: "User",
       },
     ],
-    pendingConnections: [
+    connectionRequests: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.ObjectId,
         ref: "User",
       },
     ],
-    education: [
-      {
-        institution: String,
-        degree: String,
-        year: String,
-        grade: String,
-      },
-    ],
-    experience: [
-      {
-        company: String,
-        position: String,
-        duration: String,
-        description: String,
-      },
-    ],
-    projects: [
-      {
-        title: String,
-        description: String,
-        technologies: [String],
-        link: String,
-      },
-    ],
-    achievements: [String],
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verificationToken: String,
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    createdAt: {
+    lastActive: {
       type: Date,
       default: Date.now,
     },
-    lastActive: {
+    createdAt: {
       type: Date,
       default: Date.now,
     },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 )
+
+// Create compound index for faster searches
+UserSchema.index({ name: "text", department: "text", bio: "text" })
 
 // Encrypt password using bcrypt
 UserSchema.pre("save", async function (next) {
@@ -113,10 +98,68 @@ UserSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt)
 })
 
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  })
+}
+
 // Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
-export default mongoose.model("User", UserSchema)
+// Generate and hash password token
+UserSchema.methods.getResetPasswordToken = function () {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString("hex")
 
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000
+
+  return resetToken
+}
+
+// Generate email verification token
+UserSchema.methods.getEmailVerificationToken = function () {
+  // Generate token
+  const verificationToken = crypto.randomBytes(20).toString("hex")
+
+  // Hash token and set to emailVerificationToken field
+  this.emailVerificationToken = crypto.createHash("sha256").update(verificationToken).digest("hex")
+
+  // Set expire
+  this.emailVerificationExpire = Date.now() + 24 * 60 * 60 * 1000
+
+  return verificationToken
+}
+
+// Virtual for posts
+UserSchema.virtual("posts", {
+  ref: "Post",
+  localField: "_id",
+  foreignField: "user",
+  justOne: false,
+})
+
+// Virtual for events
+UserSchema.virtual("events", {
+  ref: "Event",
+  localField: "_id",
+  foreignField: "organizer",
+  justOne: false,
+})
+
+// Virtual for resources
+UserSchema.virtual("resources", {
+  ref: "Resource",
+  localField: "_id",
+  foreignField: "user",
+  justOne: false,
+})
+
+export default mongoose.model("User", UserSchema)

@@ -20,4 +20,3 @@ router.put("/:id/read", markAsRead)
 router.delete("/:id", deleteMessage)
 
 export default router
-

@@ -2,18 +2,37 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from "@/components/auth-provider"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import ClientLayout from "./client-layout"
 
-const inter = Inter({ subsets: ["latin"] })
+// Optimize font loading
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  variable: "--font-inter",
+})
 
 export const metadata: Metadata = {
   title: "LNCT Community",
   description: "Connect with students, alumni, and faculty of Lakshmi Narain College of Technology",
-    generator: 'v0.dev'
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://lnct-community.vercel.app"),
+  keywords: ["LNCT", "community", "college", "education", "students", "alumni", "faculty"],
+  authors: [{ name: "LNCT Community Team" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://lnct-community.vercel.app",
+    title: "LNCT Community",
+    description: "Connect with students, alumni, and faculty of Lakshmi Narain College of Technology",
+    siteName: "LNCT Community",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LNCT Community",
+    description: "Connect with students, alumni, and faculty of Lakshmi Narain College of Technology",
+  },
+  manifest: "/site.webmanifest",
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -21,24 +40,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+  return <ClientLayout inter={inter}>{children}</ClientLayout>
 }
-
-
-
-import './globals.css'

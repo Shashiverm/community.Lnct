@@ -1,4 +1,5 @@
 import User from "../models/User.js"
+import ValidId from "../models/ValidId.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import sendEmail from "../utils/sendEmail.js"
@@ -52,6 +53,22 @@ export const register = async (req, res, next) => {
         message: "User with this email already exists",
       })
     }
+
+    // Check if enrollment number/teacher ID is valid
+    const validId = await ValidId.findOne({
+      id: role === "student" ? req.body.enrollmentNumber : req.body.teacherId,
+      type: role,
+    })
+    if (!validId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Enrollment Number or Teacher ID",
+      })
+    }
+
+    // Remove enrollmentNumber/teacherId from req.body as it's not a field in the User model
+    delete req.body.enrollmentNumber
+    delete req.body.teacherId
 
     // Create verification token
     const verificationToken = crypto.randomBytes(20).toString("hex")
@@ -334,4 +351,3 @@ export const refreshToken = async (req, res, next) => {
     next(error)
   }
 }
-

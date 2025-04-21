@@ -20,30 +20,45 @@ export const verifyToken = async (req, res, next) => {
       })
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    // Get user from the token
-    const user = await User.findById(decoded.id)
+      // Get user from the token
+      const user = await User.findById(decoded.id).select("-password")
 
-    if (!user) {
-      return res.status(404).json({
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        })
+      }
+
+      // Check if user is active
+      if (!user.isActive) {
+        return res.status(401).json({
+          success: false,
+          message: "Your account has been deactivated. Please contact an administrator.",
+        })
+      }
+
+      // Update last active timestamp
+      user.lastActive = Date.now()
+      await user.save({ validateBeforeSave: false })
+
+      // Add user to request object
+      req.user = user
+      next()
+    } catch (error) {
+      return res.status(401).json({
         success: false,
-        message: "User not found",
+        message: "Token is invalid or has expired",
       })
     }
-
-    // Update last active timestamp
-    user.lastActive = Date.now()
-    await user.save({ validateBeforeSave: false })
-
-    // Add user to request object
-    req.user = user
-    next()
   } catch (error) {
-    return res.status(401).json({
+    return res.status(500).json({
       success: false,
-      message: "Not authorized to access this route",
+      message: "Server error during authentication",
     })
   }
 }
@@ -59,4 +74,3 @@ export const authorize = (...roles) => {
     next()
   }
 }
-

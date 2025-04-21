@@ -29,4 +29,3 @@ router.get("/:id/posts", getUserPosts)
 router.put("/profile-image", updateProfileImage)
 
 export default router
-

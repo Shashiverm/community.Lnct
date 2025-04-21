@@ -389,4 +389,3 @@ export const searchResources = async (req, res, next) => {
     next(error)
   }
 }
-

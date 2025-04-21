@@ -1,136 +1,228 @@
 "use client"
 
 import type React from "react"
+import { createContext, useState, useEffect, useContext } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import apiClient from "@/lib/api-client"
+import { toast } from "@/components/ui/use-toast"
 
-import { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-
-// Update the User type to include new fields
-type User = {
-  id: string
+interface User {
+  _id: string
   name: string
   email: string
-  username?: string
-  enrollmentNumber?: string
-  teacherId?: string
-  role: "student" | "alumni" | "faculty" | "admin"
-  profileImage?: string
+  role: string
+  profileImage: string
+  isEmailVerified: boolean
+  [key: string]: any
 }
 
-type AuthContextType = {
+interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (userData: RegisterData) => Promise<void>
-  logout: () => void
-}
-
-// Update the RegisterData type to include new fields
-type RegisterData = {
-  name: string
-  email: string
-  username?: string
-  enrollmentNumber?: string
-  teacherId?: string
-  password: string
-  role: "student" | "alumni" | "faculty"
+  register: (userData: any) => Promise<void>
+  logout: () => Promise<void>
+  updateUser: (userData: Partial<User>) => void
+  isAuthenticated: boolean
+  checkingAuth: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [tokenRefreshInterval, setTokenRefreshInterval] = useState<NodeJS.Timeout | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
-  useEffect(() => {
-    // Check if user is logged in
-    const storedUser = localStorage.getItem("lnct_user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+  // Function to get current user
+  const getCurrentUser = async () => {
+    try {
+      const response = await apiClient.get<{ data: User }>("/auth/me")
+      setUser(response.data)
+      return response.data
+    } catch (error) {
+      setUser(null)
+      localStorage.removeItem("token")
+      return null
+    } finally {
+      setCheckingAuth(false)
     }
-    setLoading(false)
+  }
+
+  // Function to refresh token
+  const refreshToken = async () => {
+    try {
+      const response = await apiClient.get<{ token: string }>("/auth/refresh-token")
+      localStorage.setItem("token", response.token)
+      return true
+    } catch (error) {
+      console.error("Failed to refresh token:", error)
+      return false
+    }
+  }
+
+  // Setup token refresh interval
+  const setupTokenRefresh = () => {
+    // Refresh token every 55 minutes (assuming 1 hour expiry)
+    if (tokenRefreshInterval) {
+      clearInterval(tokenRefreshInterval)
+    }
+
+    const interval = setInterval(
+      async () => {
+        const success = await refreshToken()
+        if (!success) {
+          clearInterval(interval)
+          setTokenRefreshInterval(null)
+          await logout()
+        }
+      },
+      55 * 60 * 1000,
+    )
+
+    setTokenRefreshInterval(interval)
+  }
+
+  // Check if user is logged in on initial load
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem("token")
+      if (token) {
+        await getCurrentUser()
+        setupTokenRefresh()
+      } else {
+        setCheckingAuth(false)
+      }
+    }
+
+    initAuth()
+
+    return () => {
+      if (tokenRefreshInterval) {
+        clearInterval(tokenRefreshInterval)
+      }
+    }
   }, [])
 
+  // Login function
   const login = async (email: string, password: string) => {
     setLoading(true)
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful login
-      const mockUser: User = {
-        id: "1",
-        name: "John Doe",
-        email,
-        role: "student",
-        profileImage: "/placeholder.svg?height=40&width=40",
-      }
+      const response = await apiClient.post<{ token: string; user: User }>("/auth/login", { email, password })
 
-      // Store user in localStorage
-      localStorage.setItem("lnct_user", JSON.stringify(mockUser))
-      setUser(mockUser)
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Login failed:", error)
-      throw error
+      localStorage.setItem("token", response.token)
+      setUser(response.user)
+      setupTokenRefresh()
+
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${response.user.name}!`,
+      })
+
+      // Redirect based on role
+      if (response.user.role === "admin") {
+        router.push("/admin/dashboard")
+      } else {
+        router.push("/dashboard")
+      }
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid credentials. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  // Update the register function to handle new fields
-  const register = async (userData: RegisterData) => {
+  // Register function
+  const register = async (userData: any) => {
     setLoading(true)
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful registration
-      const mockUser: User = {
-        id: "1",
-        name: userData.name,
-        email: userData.email,
-        username: userData.username,
-        enrollmentNumber: userData.enrollmentNumber,
-        teacherId: userData.teacherId,
-        role: userData.role,
-        profileImage: "/placeholder.svg?height=40&width=40",
-      }
+      await apiClient.post("/auth/register", userData)
 
-      // Store user in localStorage
-      localStorage.setItem("lnct_user", JSON.stringify(mockUser))
-      setUser(mockUser)
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Registration failed:", error)
-      throw error
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to verify your account.",
+      })
+
+      router.push("/login")
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message || "Could not create account. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const logout = () => {
-    localStorage.removeItem("lnct_user")
-    setUser(null)
-    router.push("/")
+  // Logout function
+  const logout = async () => {
+    setLoading(true)
+    try {
+      await apiClient.post("/auth/logout", {})
+
+      localStorage.removeItem("token")
+      setUser(null)
+
+      if (tokenRefreshInterval) {
+        clearInterval(tokenRefreshInterval)
+        setTokenRefreshInterval(null)
+      }
+
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      })
+
+      router.push("/")
+    } catch (error) {
+      console.error("Logout error:", error)
+
+      // Force logout on client side even if server request fails
+      localStorage.removeItem("token")
+      setUser(null)
+      router.push("/")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    )
+  // Update user function
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...userData })
+    }
   }
 
-  return <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        updateUser,
+        isAuthenticated: !!user,
+        checkingAuth,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
 }
-

@@ -68,4 +68,3 @@ ResourceSchema.set("toJSON", { virtuals: true })
 ResourceSchema.set("toObject", { virtuals: true })
 
 export default mongoose.model("Resource", ResourceSchema)
-

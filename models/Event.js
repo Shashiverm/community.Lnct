@@ -81,4 +81,3 @@ EventSchema.set("toJSON", { virtuals: true })
 EventSchema.set("toObject", { virtuals: true })
 
 export default mongoose.model("Event", EventSchema)
-

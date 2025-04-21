@@ -24,4 +24,3 @@ router.get("/:id/attendees", getEventAttendees)
 router.put("/:id/cancel", cancelEvent)
 
 export default router
-

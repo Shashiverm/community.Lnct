@@ -35,4 +35,3 @@ const ConversationSchema = new mongoose.Schema(
 )
 
 export default mongoose.model("Conversation", ConversationSchema)
-

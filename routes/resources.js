@@ -24,4 +24,3 @@ router.delete("/:id/like", unlikeResource)
 router.get("/:id/download", downloadResource)
 
 export default router
-

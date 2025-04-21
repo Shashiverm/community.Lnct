@@ -16,4 +16,3 @@ router.delete("/:id", deleteNotification)
 router.put("/settings", updateNotificationSettings)
 
 export default router
-

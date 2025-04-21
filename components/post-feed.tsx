@@ -78,13 +78,13 @@ const mockPosts = [
 export function PostFeed() {
   const router = useRouter()
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [posts, setPosts] = useState(mockPosts)
   const [newPostContent, setNewPostContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLike = (postId: string) => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please log in to like posts",
@@ -109,7 +109,7 @@ export function PostFeed() {
   }
 
   const handleComment = (postId: string) => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please log in to comment on posts",
@@ -126,7 +126,7 @@ export function PostFeed() {
   }
 
   const handleShare = (postId: string) => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please log in to share posts",
@@ -143,7 +143,7 @@ export function PostFeed() {
   }
 
   const handleSubmitPost = async () => {
-    if (!user) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please log in to create posts",
@@ -235,8 +235,7 @@ export function PostFeed() {
 
   return (
     <div className="space-y-6">
-      {/* Post creation form - only shown to logged in users */}
-      {user && (
+      {isAuthenticated && (
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-start gap-4">
@@ -286,7 +285,6 @@ export function PostFeed() {
         </Card>
       )}
 
-      {/* Posts feed - visible to everyone */}
       {posts.map((post) => (
         <Card key={post.id}>
           <CardHeader className="pb-3">
@@ -309,11 +307,9 @@ export function PostFeed() {
                   <p className="text-xs text-muted-foreground">{post.timestamp}</p>
                 </div>
               </div>
-              {user && (
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              )}
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="pb-3">
@@ -331,42 +327,39 @@ export function PostFeed() {
               </div>
             </div>
           </CardFooter>
-          {user && (
-            <div className="border-t px-4 py-2">
-              <div className="flex justify-between">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`flex-1 ${post.isLiked ? "text-primary" : "text-muted-foreground"}`}
-                  onClick={() => handleLike(post.id)}
-                >
-                  <ThumbsUp className={`h-4 w-4 mr-2 ${post.isLiked ? "fill-current" : ""}`} />
-                  Like
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1 text-muted-foreground"
-                  onClick={() => handleComment(post.id)}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Comment
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1 text-muted-foreground"
-                  onClick={() => handleShare(post.id)}
-                >
-                  <Share className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </div>
+          <div className="border-t px-4 py-2">
+            <div className="flex justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`flex-1 ${post.isLiked ? "text-primary" : "text-muted-foreground"}`}
+                onClick={() => handleLike(post.id)}
+              >
+                <ThumbsUp className={`h-4 w-4 mr-2 ${post.isLiked ? "fill-current" : ""}`} />
+                Like
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 text-muted-foreground"
+                onClick={() => handleComment(post.id)}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Comment
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 text-muted-foreground"
+                onClick={() => handleShare(post.id)}
+              >
+                <Share className="h-4 w-4 mr-2" />
+                Share
+              </Button>
             </div>
-          )}
+          </div>
         </Card>
       ))}
     </div>
   )
 }
-

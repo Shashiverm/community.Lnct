@@ -159,4 +159,3 @@ export const updateNotificationSettings = async (req, res, next) => {
     next(error)
   }
 }
-

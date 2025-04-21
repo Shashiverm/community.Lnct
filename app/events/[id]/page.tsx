@@ -12,44 +12,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
 import Link from "next/link"
-import { ThemeToggle } from "@/components/theme-toggle"
-
-interface User {
-  id: string
-  name: string
-  role: string
-  profileImage: string
-}
-
-interface Attendee {
-  user: User
-  status: "attending" | "maybe" | "not attending"
-}
-
-interface Event {
-  id: string
-  title: string
-  description: string
-  date: string
-  endDate: string
-  location: string
-  category: string
-  attendees: Attendee[]
-  organizer: User
-  agenda: Array<{
-    time: string
-    title: string
-    description: string
-  }>
-  isAttending: boolean
-}
 
 export default function EventDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const { toast } = useToast()
   const { user } = useAuth()
-  const [event, setEvent] = useState<Event | null>(null)
+  const [event, setEvent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [attendanceStatus, setAttendanceStatus] = useState<"attending" | "maybe" | "not attending" | null>(null)
 
@@ -61,8 +30,8 @@ export default function EventDetailPage() {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         // Mock event data
-        const mockEvent: Event = {
-          id: String(id),
+        const mockEvent = {
+          id,
           title: "Annual Tech Symposium",
           description:
             "Join us for a day of tech talks, workshops, and networking with industry professionals. The symposium will feature keynote speeches from leading experts in AI, blockchain, and cloud computing. There will also be hands-on workshops on the latest technologies and tools used in the industry. This is a great opportunity for students to learn about current trends and network with professionals.",
@@ -229,13 +198,10 @@ export default function EventDetailPage() {
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <Badge variant="secondary">{event.category}</Badge>
-                <div className="flex items-center gap-2">
-                  <ThemeToggle />
-                  <Button variant="ghost" size="sm" onClick={handleShare}>
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                </div>
+                <Button variant="ghost" size="sm" onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
               </div>
               <CardTitle className="text-2xl md:text-3xl">{event.title}</CardTitle>
               <CardDescription className="text-base">{event.description}</CardDescription>
@@ -414,4 +380,3 @@ export default function EventDetailPage() {
     </div>
   )
 }
-

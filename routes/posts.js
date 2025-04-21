@@ -26,4 +26,3 @@ router.delete("/:id/comments/:commentId", deleteComment)
 router.get("/:id/comments", getPostComments)
 
 export default router
-

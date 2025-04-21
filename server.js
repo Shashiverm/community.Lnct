@@ -1,79 +1,104 @@
-import express from "express"
-import mongoose from "mongoose"
-import cors from "cors"
-import dotenv from "dotenv"
-import cookieParser from "cookie-parser"
-import helmet from "helmet"
-import morgan from "morgan"
+const express = require("express")
+const dotenv = require("dotenv")
+const morgan = require("morgan")
+const colors = require("colors")
+const cookieParser = require("cookie-parser")
+const mongoSanitize = require("express-mongo-sanitize")
+const helmet = require("helmet")
+const xss = require("xss-clean")
+const rateLimit = require("express-rate-limit")
+const hpp = require("hpp")
+const cors = require("cors")
+const errorHandler = require("./middleware/errorHandler")
+const connectDB = require("./config/db")
 
-// Import routes
-import authRoutes from "./routes/auth.js"
-import userRoutes from "./routes/users.js"
-import postRoutes from "./routes/posts.js"
-import eventRoutes from "./routes/events.js"
-import resourceRoutes from "./routes/resources.js"
-import messageRoutes from "./routes/messages.js"
-import notificationRoutes from "./routes/notifications.js"
-
-// Import middleware
-import { errorHandler } from "./middleware/errorHandler.js"
-import { verifyToken } from "./middleware/auth.js"
-
-// Load environment variables
+// Load env vars
 dotenv.config()
 
-// Initialize express app
+// Connect to database
+connectDB()
+
+// Route files
+const auth = require("./routes/auth")
+const users = require("./routes/users")
+const posts = require("./routes/posts")
+const events = require("./routes/events")
+const resources = require("./routes/resources")
+const messages = require("./routes/messages")
+const notifications = require("./routes/notifications")
+const quizzes = require("./routes/quizzes")
+const assignments = require("./routes/assignments")
+const feedback = require("./routes/feedback")
+const courses = require("./routes/courses")
+const departments = require("./routes/departments")
+const announcements = require("./routes/announcements")
+const academicCalendar = require("./routes/academicCalendar")
+const supportTickets = require("./routes/supportTickets")
+
 const app = express()
-const PORT = process.env.PORT || 5000
 
-// Middleware
-app.use(express.json({ limit: "50mb" }))
-app.use(express.urlencoded({ extended: true, limit: "50mb" }))
+// Body parser
+app.use(express.json())
+
+// Cookie parser
 app.use(cookieParser())
+
+// Dev logging middleware
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"))
+}
+
+// Sanitize data
+app.use(mongoSanitize())
+
+// Set security headers
 app.use(helmet())
-app.use(morgan("dev"))
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true,
-  }),
-)
 
-// Routes
-app.use("/api/auth", authRoutes)
-app.use("/api/users", verifyToken, userRoutes)
-app.use("/api/posts", verifyToken, postRoutes)
-app.use("/api/events", verifyToken, eventRoutes)
-app.use("/api/resources", verifyToken, resourceRoutes)
-app.use("/api/messages", verifyToken, messageRoutes)
-app.use("/api/notifications", verifyToken, notificationRoutes)
+// Prevent XSS attacks
+app.use(xss())
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" })
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
 })
+app.use(limiter)
 
-// Error handling middleware
+// Prevent http param pollution
+app.use(hpp())
+
+// Enable CORS
+app.use(cors())
+
+// Mount routers
+app.use("/api/auth", auth)
+app.use("/api/users", users)
+app.use("/api/posts", posts)
+app.use("/api/events", events)
+app.use("/api/resources", resources)
+app.use("/api/messages", messages)
+app.use("/api/notifications", notifications)
+app.use("/api/quizzes", quizzes)
+app.use("/api/assignments", assignments)
+app.use("/api/feedback", feedback)
+app.use("/api/courses", courses)
+app.use("/api/departments", departments)
+app.use("/api/announcements", announcements)
+app.use("/api/academic-calendar", academicCalendar)
+app.use("/api/support-tickets", supportTickets)
+
 app.use(errorHandler)
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB")
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`)
-    })
-  })
-  .catch((error) => {
-    console.error("MongoDB connection error:", error)
-    process.exit(1)
-  })
+const PORT = process.env.PORT || 5000
+
+const server = app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold),
+)
 
 // Handle unhandled promise rejections
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Promise Rejection:", err)
+process.on("unhandledRejection", (err, promise) => {
+  console.log(`Error: ${err.message}`.red)
   // Close server & exit process
-  process.exit(1)
+  server.close(() => process.exit(1))
 })
-

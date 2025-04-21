@@ -13,21 +13,21 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, loading } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
     // Wait until auth state is determined
-    if (!loading) {
-      if (!user) {
+    if (!isLoading) {
+      if (!isAuthenticated) {
         toast({
           title: "Authentication Required",
           description: "Please log in to access this page",
           variant: "destructive",
         })
         router.push("/login")
-      } else if (requiredRole && user.role !== requiredRole) {
+      } else if (requiredRole && user?.role !== requiredRole) {
         toast({
           title: "Access Denied",
           description: `Only ${requiredRole} can access this page`,
@@ -36,10 +36,10 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
         router.push("/dashboard")
       }
     }
-  }, [loading, router, toast, user, requiredRole])
+  }, [isAuthenticated, isLoading, router, toast, user, requiredRole])
 
   // Show loading state while checking authentication
-  if (loading || !user) {
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-2">
@@ -58,4 +58,3 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   // User is authenticated, render children
   return <>{children}</>
 }
-

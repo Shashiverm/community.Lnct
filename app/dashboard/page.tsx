@@ -4,7 +4,7 @@ import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bell, BookOpen, Calendar, MessageSquare, Users } from "lucide-react"
+import { Bell, BookOpen, Calendar, MessageSquare, Users, BookMarked, FileText, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import { PostFeed } from "@/components/post-feed"
 import { NotificationsList } from "@/components/notifications-list"
@@ -88,6 +88,24 @@ export default function DashboardPage() {
                     <span className="truncate">Messages</span>
                   </Link>
                 </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link href="/quizzes">
+                    <BookMarked className="mr-2 h-4 w-4" />
+                    <span className="truncate">Quizzes</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link href="/assignments">
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span className="truncate">Assignments</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link href="/feedback">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    <span className="truncate">Feedback</span>
+                  </Link>
+                </Button>
                 <Button variant="outline" className="justify-start col-span-2 sm:col-span-3 lg:col-span-1" asChild>
                   <Link href="/notifications">
                     <Bell className="mr-2 h-4 w-4" />
@@ -112,4 +130,3 @@ export default function DashboardPage() {
     </ProtectedRoute>
   )
 }
-

@@ -417,4 +417,3 @@ export default function CreateEventPage() {
     </ProtectedRoute>
   )
 }
-

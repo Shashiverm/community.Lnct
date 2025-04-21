@@ -421,4 +421,3 @@ export const getPostComments = async (req, res, next) => {
     next(error)
   }
 }
-

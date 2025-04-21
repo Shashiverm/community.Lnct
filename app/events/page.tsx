@@ -10,27 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/components/auth-provider"
 import { CalendarPlus, Search, Filter } from "lucide-react"
 
-interface Organizer {
-  name: string
-  role: string
-}
-
-interface Event {
-  id: string
-  title: string
-  description: string
-  date: string
-  location: string
-  category: string
-  attendees: number
-  organizer: Organizer
-  attending: boolean
-  image: string
-  time: string
-}
-
 // Mock data for events
-const mockEvents: Event[] = [
+const mockEvents = [
   {
     id: "1",
     title: "Annual Tech Symposium",
@@ -139,10 +120,10 @@ const mockEvents: Event[] = [
 
 export default function EventsPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(mockEvents)
+  const [filteredEvents, setFilteredEvents] = useState(mockEvents)
   const [activeTab, setActiveTab] = useState("upcoming")
 
   useEffect(() => {
@@ -183,7 +164,7 @@ export default function EventsPage() {
         </div>
 
         {/* Only show Create Event button to faculty users */}
-        {user && isFaculty && (
+        {isAuthenticated && isFaculty && (
           <Button onClick={() => router.push("/events/create")}>
             <CalendarPlus className="mr-2 h-4 w-4" />
             Create Event
@@ -228,7 +209,7 @@ export default function EventsPage() {
           </div>
 
           {/* Non-faculty message */}
-          {user && !isFaculty && (
+          {isAuthenticated && !isFaculty && (
             <Card>
               <CardContent className="p-4">
                 <p className="text-sm text-muted-foreground">
@@ -374,4 +355,3 @@ export default function EventsPage() {
     </div>
   )
 }
-

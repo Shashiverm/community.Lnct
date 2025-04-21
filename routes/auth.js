@@ -23,4 +23,3 @@ router.get("/verify-email/:verificationToken", verifyEmail)
 router.post("/refresh-token", refreshToken)
 
 export default router
-

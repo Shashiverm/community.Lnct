@@ -96,4 +96,3 @@ export function ResourcesPreview() {
     </section>
   )
 }
-

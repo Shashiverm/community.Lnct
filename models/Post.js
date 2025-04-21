@@ -2,41 +2,37 @@ import mongoose from "mongoose"
 
 const PostSchema = new mongoose.Schema(
   {
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
+    user: {
+      type: mongoose.Schema.ObjectId,
       ref: "User",
       required: true,
+      index: true, // Add index for faster queries
     },
     content: {
       type: String,
-      required: [true, "Please provide post content"],
-      maxlength: [5000, "Post cannot be more than 5000 characters"],
+      required: [true, "Please add content to your post"],
+      trim: true,
+      maxlength: [5000, "Post content cannot be more than 5000 characters"],
     },
-    media: [
-      {
-        type: String,
-        url: String,
-        mediaType: {
-          type: String,
-          enum: ["image", "video", "document"],
-        },
-      },
-    ],
+    images: [String],
     likes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.ObjectId,
         ref: "User",
       },
     ],
     comments: [
       {
         user: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: mongoose.Schema.ObjectId,
           ref: "User",
+          required: true,
         },
-        text: {
+        content: {
           type: String,
           required: true,
+          trim: true,
+          maxlength: [1000, "Comment cannot be more than 1000 characters"],
         },
         createdAt: {
           type: Date,
@@ -44,35 +40,29 @@ const PostSchema = new mongoose.Schema(
         },
       },
     ],
-    tags: [String],
-    visibility: {
-      type: String,
-      enum: ["public", "connections", "private"],
-      default: "public",
-    },
-    isDeleted: {
+    isPublic: {
       type: Boolean,
-      default: false,
+      default: true,
+    },
+    tags: [String],
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      index: true, // Add index for faster queries
     },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 )
 
-// Virtual for like count
-PostSchema.virtual("likeCount").get(function () {
-  return this.likes.length
-})
+// Create text index for search
+PostSchema.index({ content: "text", tags: "text" })
 
-// Virtual for comment count
-PostSchema.virtual("commentCount").get(function () {
-  return this.comments.length
-})
-
-// Set virtuals to true when converting to JSON
-PostSchema.set("toJSON", { virtuals: true })
-PostSchema.set("toObject", { virtuals: true })
+// Create compound index for faster filtering
+PostSchema.index({ user: 1, createdAt: -1 })
+PostSchema.index({ isPublic: 1, createdAt: -1 })
 
 export default mongoose.model("Post", PostSchema)
-

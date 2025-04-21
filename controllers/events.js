@@ -439,4 +439,3 @@ export const cancelEvent = async (req, res, next) => {
     next(error)
   }
 }
-
