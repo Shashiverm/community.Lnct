@@ -149,7 +149,7 @@ class ApiClient {
 
   async upload<T>(endpoint: string, formData: FormData, options: FetchOptions = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    const fetchOptions: FetchOptions = {
+    const fetchOptions = {
       ...this.defaultOptions,
       ...options,
       method: "POST",
@@ -158,7 +158,7 @@ class ApiClient {
         ...options.headers,
       },
       body: formData,
-    }
+    } as FetchOptions & { headers: Record<string, string> }
 
     // Remove Content-Type header as it will be set automatically with the correct boundary
     delete fetchOptions.headers?.["Content-Type"]
